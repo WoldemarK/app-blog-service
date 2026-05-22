@@ -29,10 +29,10 @@ import java.util.UUID;
 public class FileStorageService {
 
     @Value("${app.upload-dir}")
-    private String uploadDir;
+    String uploadDir;
 
     @Value("#{'${app.upload-dir.allowed-image-extensions}'.split(',')}")
-    private Set<String> allowedExtensions = new HashSet<>();
+    Set<String> allowedExtensions = new HashSet<>();
 
     private final FileStorageRepository fileStorageRepository;
 
