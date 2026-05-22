@@ -1,6 +1,7 @@
 package ru.yandex.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,32 +78,35 @@ public class PostRepository {
      * Получение поста по id
      */
     public PostDto findById(Long postId) {
+        try {
+            return jdbcTemplate.queryForObject(
+                    IND_POST_BY_ID,
+                    (rs, rowNum) -> {
 
-        return jdbcTemplate.queryForObject(
-                IND_POST_BY_ID,
-                (rs, rowNum) -> {
+                        String[] tagsArray = Optional.ofNullable(rs.getArray("tags"))
+                                .map(arr -> {
+                                    try {
+                                        return (String[]) arr.getArray();
+                                    } catch (Exception e) {
+                                        return new String[0];
+                                    }
+                                })
+                                .orElse(new String[0]);
 
-                    String[] tagsArray = Optional.ofNullable(rs.getArray("tags"))
-                            .map(arr -> {
-                                try {
-                                    return (String[]) arr.getArray();
-                                } catch (Exception e) {
-                                    return new String[0];
-                                }
-                            })
-                            .orElse(new String[0]);
-
-                    return PostDto.builder()
-                            .id(rs.getLong("id"))
-                            .title(rs.getString("title"))
-                            .text(rs.getString("text"))
-                            .likesCount(rs.getInt("likes_count"))
-                            .commentsCount(rs.getInt("comments_count"))
-                            .tags(Arrays.asList(tagsArray))
-                            .build();
-                },
-                postId
-        );
+                        return PostDto.builder()
+                                .id(rs.getLong("id"))
+                                .title(rs.getString("title"))
+                                .text(rs.getString("text"))
+                                .likesCount(rs.getInt("likes_count"))
+                                .commentsCount(rs.getInt("comments_count"))
+                                .tags(Arrays.asList(tagsArray))
+                                .build();
+                    },
+                    postId
+            );
+        }catch (EmptyResultDataAccessException e){
+            throw new PostNotFoundException("Post not found with id: " + postId, postId);
+        }
     }
 
     /**

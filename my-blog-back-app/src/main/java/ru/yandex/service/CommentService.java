@@ -30,7 +30,7 @@ public class CommentService {
     /**
      * Получение комментариев поста
      */
-    @Transactional(readOnly = true)
+
     public List<CommentResponse> getCommentsByPostId(Long postId) {
         log.info("Getting comments for post={}", postId);
         return commentRepository.getCommentsByPostId(postId);

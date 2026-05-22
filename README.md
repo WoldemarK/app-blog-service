@@ -1,37 +1,79 @@
-## Blog Backend API
+# My Blog Backend
 
-### Бэкенд для приложения-блога на Java 21 с использованием Spring Framework 6, 
-### REST API, PostgreSQL/H2 и покрытием тестами на JUnit 5.
+Бэкенд приложения-блога на Java 21 и Spring Framework.
 
-# 📌 Описание проекта
+## 📦 Технологии
 
-### Проект представляет собой backend-часть блог-платформы, взаимодействующую с React frontend через REST API.
+- Java 21
+- Spring Framework
+- Maven
+- PostgreSQL / H2
+- Docker
+- JUnit 5
+- Tomcat / Jetty
 
-### Функциональность:
+---
 
-* CRUD для постов
-* CRUD для комментариев
-* Лайки постов
-* Загрузка и получение изображений
-* Поиск постов
-* Пагинация
-* Фильтрация по тегам
-* Unit + integration tests
+## 🚀 Запуск проекта локально
 
-### Frontend работает через Nginx и обращается к backend по адресу:
-http://localhost:8080
+### 1. Склонировать репозиторий
 
-# 🛠 Технологии
-* Java 21
-* Spring Framework 6
-* Spring MVC
-* PostgreSQL
-* Maven
-* JUnit 5
-* Docker
-* Tomcat
-# 📂 Структура проекта
+```bash
+git clone https://github.com/your-name/my-blog-back-app.git
+cd my-blog-back-app
 ```
+
+---
+
+### 2. Собрать проект
+
+```bash
+mvn clean package
+```
+
+После сборки появится файл:
+
+```bash
+target/*.jar
+```
+
+---
+
+### 3. Запустить приложение
+
+```bash
+java -jar target/*.jar
+```
+
+Приложение будет доступно:
+
+```text
+http://localhost:8080
+```
+
+---
+
+## 🐳 Docker
+
+### Сборка Docker-образа
+
+```bash
+docker build -t my-blog-app .
+```
+
+---
+
+### Запуск контейнера
+
+```bash
+docker run -p 8080:8080 my-blog-app
+```
+
+---
+
+## 📂 Структура проекта
+
+```text
 src
 ├── main
 │   ├── java
@@ -57,9 +99,106 @@ src
 │       └── repository
 ```
 
-## Настройки в application.properties:
+---
 
-* jdbc.url=jdbc:postgresql://localhost:5432/blog_db
-* jdbc.username=
-* jdbc.password=
-* jdbc.driver=org.postgresql.Driver
+## 🧪 Тесты
+
+Запуск всех тестов:
+
+```bash
+mvn test
+```
+
+---
+
+## 📡 Основные REST API
+
+### Получить список постов
+
+```http
+GET /api/posts
+```
+
+---
+
+### Получить пост
+
+```http
+GET /api/posts/{id}
+```
+
+---
+
+### Создать пост
+
+```http
+POST /api/posts
+```
+
+---
+
+### Удалить пост
+
+```http
+DELETE /api/posts/{id}
+```
+
+---
+
+## 📸 Работа с изображениями
+
+### Загрузка изображения
+
+```http
+PUT /api/posts/{id}/image
+```
+
+### Получение изображения
+
+```http
+GET /api/posts/{id}/image
+```
+
+---
+
+## 📝 Комментарии
+
+### Получить комментарии
+
+```http
+GET /api/posts/{id}/comments
+```
+
+### Добавить комментарий
+
+```http
+POST /api/posts/{id}/comments
+```
+
+---
+
+## ⚙️ Переменные окружения
+
+Пример:
+
+```bash
+DB_URL=jdbc:postgresql://localhost:5432/blog
+DB_USER=postgres
+DB_PASSWORD=postgres
+```
+
+---
+
+## 🐳 Dockerfile
+
+Проект использует multi-stage build:
+
+1. Maven собирает jar
+2. Финальный образ содержит только Java Runtime
+
+---
+
+## 👨‍💻 Автор
+
+[Kovtunov Vladimir](https://github.com/WoldemarK)
+[Software Engineering Telegram](https://t.me/K_Waldemar)

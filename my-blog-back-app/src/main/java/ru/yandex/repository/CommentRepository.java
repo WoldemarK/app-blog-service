@@ -91,7 +91,15 @@ public class CommentRepository {
      * Удаление комментария
      */
     public void deleteComment(Long postId, Long commentId) {
-        jdbcTemplate.update(DELETE_COMMENT, commentId, postId);
+        int deleted = jdbcTemplate.update(DELETE_COMMENT, commentId, postId);
+
+        if (deleted == 0) {
+            throw new CommentNotFoundException(
+                    "Comment not found",
+                    null,
+                    commentId
+            );
+        }
     }
 
     private void checkPostExists(Long postId) {

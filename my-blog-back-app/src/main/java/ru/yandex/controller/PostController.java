@@ -23,7 +23,8 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts")
+@RequestMapping(value = "/api/posts",
+        produces = MediaType.APPLICATION_JSON_VALUE)
 public class PostController {
 
     private final PostService postService;
@@ -39,25 +40,26 @@ public class PostController {
                 .body(postService.createPost(request));
     }
 
-    @PostMapping("/{id}")
-    public ResponseEntity<PostDto> getPostById(@PathVariable("id") Long id) {
-        log.debug("Get post by id: {}", id);
-        return new ResponseEntity<>(postService.findPostById(id),
+    //@PostMapping("/{postId}")
+     @GetMapping("/{postId}")
+    public ResponseEntity<PostDto> getPostById(@PathVariable("postId") Long postId) {
+        log.debug("Get post by id: {}", postId);
+        return new ResponseEntity<>(postService.findPostById(postId),
                 HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<PostDto> updatePost(@PathVariable("id") Long id,
+    @PutMapping(value = "/{postId}")
+    public ResponseEntity<PostDto> updatePost(@PathVariable("postId") Long postId,
                                               @RequestBody UpdatePostRequest request) {
         log.debug("Update post request: {}", request);
         return ResponseEntity.status(HttpStatus.OK)
-                .body(postService.update(id, request));
+                .body(postService.update(postId, request));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable("id") Long id) {
-        log.debug("Delete post by id: {}", id);
-        postService.deletePost(id);
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable("postId") Long postId) {
+        log.debug("Delete post by id: {}", postId);
+        postService.deletePost(postId);
         return ResponseEntity.noContent()
                 .build();
     }
@@ -77,7 +79,7 @@ public class PostController {
         return ResponseEntity.ok(postService.incrementLikes(id));
     }
 
-    @PutMapping("/{id}/image")
+    @PutMapping(value = "/{id}/image")
     public ResponseEntity<Void> updatePostImage(@PathVariable("id") Long id,
                                                 @RequestParam("image") MultipartFile image) {
         log.debug("Update post image: {}", image);
@@ -86,10 +88,17 @@ public class PostController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{id}/image")
+    @GetMapping(value = "/{id}/image")
     public ResponseEntity<byte[]> getPostImage(@PathVariable("id") Long id) {
+
         log.debug("Get post image: {}", id);
+
         byte[] image = fileStorageService.getPostImage(id);
+
+        if (image == null || image.length == 0) {
+            return ResponseEntity.notFound()
+                    .build();
+        }
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(image);
@@ -97,21 +106,25 @@ public class PostController {
 
     @GetMapping("/{postId}/comments/{commentId}")
     public ResponseEntity<CommentResponse> getCommentByPostAndCommentId(@PathVariable("postId") Long postId,
-                                                                @PathVariable("commentId") Long commentId) {
+                                                                        @PathVariable("commentId") Long commentId) {
         log.debug("Get comment by post and comment id: {}", commentId);
         return ResponseEntity.ok(commentService.getCommentByPostIdAndCommentId(postId, commentId));
 
     }
 
-    @GetMapping("/{id}/comments")
-    public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable("id") Long id) {
-        log.debug("Get comments by post id: {}", id);
-        return ResponseEntity.ok(commentService.getCommentsByPostId(id));
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable("postId") Long postId) {
+        if (postId == null) {
+            log.warn("Attempt to get comments with null id");
+            return ResponseEntity.ok(List.of());
+        }
+        log.debug("Get comments by post id: {}", postId);
+        return ResponseEntity.ok(commentService.getCommentsByPostId(postId));
 
     }
 
-    @PostMapping("/{id}/comments")
-    public ResponseEntity<CommentResponse> createComment(@PathVariable("id") Long postId,
+    @PostMapping(value = "/{postId}/comments")
+    public ResponseEntity<CommentResponse> createComment(@PathVariable("postId") Long postId,
                                                          @RequestBody CreateCommentRequest request) {
         CommentResponse response = commentService.createComment(postId, request);
         log.debug("Create comment response: {}", response);
@@ -119,10 +132,10 @@ public class PostController {
                 .body(response);
     }
 
-    @PutMapping("/{postId}/comments/{commentId}")
+    @PutMapping(value = "/{postId}/comments/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(@PathVariable("postId") Long postId,
-                                                 @PathVariable("commentId") Long commentId,
-                                                 @RequestBody UpdateCommentRequest comment) {
+                                                         @PathVariable("commentId") Long commentId,
+                                                         @RequestBody UpdateCommentRequest comment) {
         log.debug("Update comment request: {}", comment);
         return ResponseEntity.ok(commentService.updateComment(postId, commentId, comment));
     }

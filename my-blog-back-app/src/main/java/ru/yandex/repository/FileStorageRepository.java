@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 import ru.yandex.exception.PostNotFoundException;
 
 import static ru.yandex.util.PostSqlQueries.FIND_IMAGE_PATH;
@@ -32,9 +33,17 @@ public class FileStorageRepository {
      */
     public String getImagePathByPostId(Long postId) {
         try {
-            return jdbcTemplate.queryForObject(FIND_IMAGE_PATH, String.class, postId);
+            String imagePath = jdbcTemplate.queryForObject(
+                    FIND_IMAGE_PATH,
+                    String.class,
+                    postId
+            );
+            if (!StringUtils.hasText(imagePath)) {
+                return null;
+            }
+            return imagePath;
         } catch (EmptyResultDataAccessException e) {
-            throw new PostNotFoundException("Post not found with id: " + postId, postId);
+            return null;
         }
     }
 

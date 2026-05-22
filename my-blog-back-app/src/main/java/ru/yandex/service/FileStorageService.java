@@ -50,6 +50,11 @@ public class FileStorageService {
      * Сохранение картинки
      */
     public String saveImage(MultipartFile file) {
+        log.info("=== START saveImage ===");
+        log.info("File original name: {}", file.getOriginalFilename());
+        log.info("File size: {} bytes", file.getSize());
+        log.info("File content type: {}", file.getContentType());
+        log.info("File is empty: {}", file.isEmpty());
         validateFile(file);
         try {
             String originalFilename = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
@@ -83,7 +88,6 @@ public class FileStorageService {
     /**
      * Получение картинки поста
      */
-    @Transactional(readOnly = true)
     public byte[] getPostImage(Long postId) {
         log.info("Getting image for post={}", postId);
 
@@ -92,20 +96,23 @@ public class FileStorageService {
             String imagePath = fileStorageRepository.getImagePathByPostId(postId);
 
             if (!StringUtils.hasText(imagePath)) {
-                throw new FileStorageException("Post image not found");
+                log.warn("Image path is null for post={}", postId);
+                return null;
             }
 
             Path filePath = Paths.get(uploadDir).resolve(imagePath);
+            log.info("Image full path={}", filePath);
 
             if (!Files.exists(filePath)) {
-                throw new FileStorageException("Post image not found");
+                log.warn("Image file not exists={}", filePath);
+                return null;
             }
 
             return Files.readAllBytes(filePath);
 
         } catch (IOException e) {
             log.error("Failed to read image for post={}", postId, e);
-            throw new FileStorageException("Failed to read image", e);
+            return null;
         }
     }
 
