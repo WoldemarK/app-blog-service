@@ -16,9 +16,11 @@ import ru.yandex.dto.post.PostsResponse;
 import ru.yandex.dto.post.UpdatePostRequest;
 import ru.yandex.service.CommentService;
 import ru.yandex.service.FileStorageService;
+import ru.yandex.service.InMemoryIdempotencyService;
 import ru.yandex.service.PostService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -30,18 +32,17 @@ public class PostController {
     private final PostService postService;
     private final FileStorageService fileStorageService;
     private final CommentService commentService;
-
+    private final InMemoryIdempotencyService idempotencyService;
 
     @PostMapping
-    public ResponseEntity<PostDto> createPost(@RequestBody CreatePostRequest request) {
+    public ResponseEntity<PostDto> createPost(@RequestHeader(value = "key", defaultValue = "key") String key,
+                                              @RequestBody CreatePostRequest request) {
         log.debug("Create post request: {}", request);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(postService.createPost(request));
+        PostDto saved = idempotencyService.execute(key, () -> postService.createPost(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    //@PostMapping("/{postId}")
-     @GetMapping("/{postId}")
+    @GetMapping("/{postId}")
     public ResponseEntity<PostDto> getPostById(@PathVariable("postId") Long postId) {
         log.debug("Get post by id: {}", postId);
         return new ResponseEntity<>(postService.findPostById(postId),
