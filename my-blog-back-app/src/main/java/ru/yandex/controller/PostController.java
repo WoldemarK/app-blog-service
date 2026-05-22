@@ -25,8 +25,7 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/api/posts",
-        produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/posts")
 public class PostController {
 
     private final PostService postService;
@@ -113,14 +112,14 @@ public class PostController {
 
     }
 
-    @GetMapping("/{postId}/comments")
-    public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable("postId") Long postId) {
-        if (postId == null) {
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<List<CommentResponse>> getCommentsByPostId(@PathVariable("id") Long id) {
+        if (id == null) {
             log.warn("Attempt to get comments with null id");
             return ResponseEntity.ok(List.of());
         }
-        log.debug("Get comments by post id: {}", postId);
-        return ResponseEntity.ok(commentService.getCommentsByPostId(postId));
+        log.debug("Get comments by post id: {}", id);
+        return ResponseEntity.ok(commentService.getCommentsByPostId(id));
 
     }
 
