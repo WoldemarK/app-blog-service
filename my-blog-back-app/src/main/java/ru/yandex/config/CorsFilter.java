@@ -3,13 +3,12 @@ package ru.yandex.config;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
+public class CorsFilter implements Filter {
 
-@Component
-public class CorsFilter implements Filter, WebMvcConfigurer {
+    private static final String ALLOWED_METHODS = "GET, POST, PUT, DELETE, OPTIONS, PATCH";
+    private static final String ALLOWED_HEADERS = "Origin, Content-Type, Accept, Authorization, X-Requested-With, Access-Control-Request-Method, Access-Control-Request-Headers";
 
 
     @Override
@@ -19,18 +18,9 @@ public class CorsFilter implements Filter, WebMvcConfigurer {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
         HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-
         httpResponse.setHeader("Access-Control-Allow-Origin", "*");
-        httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH");
-        httpResponse.setHeader("Access-Control-Allow-Headers",
-                "Origin, " +
-                        "Content-Type, " +
-                        "Accept, " +
-                        "Authorization, " +
-                        "X-Requested-With, " +
-                        "Access-Control-Request-Method," +
-                        " Access-Control-Request-Headers"
-        );
+        httpResponse.setHeader("Access-Control-Allow-Methods", ALLOWED_METHODS);
+        httpResponse.setHeader("Access-Control-Allow-Headers", ALLOWED_HEADERS);
         httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
         httpResponse.setHeader("Access-Control-Max-Age", "3600");
 
@@ -41,15 +31,5 @@ public class CorsFilter implements Filter, WebMvcConfigurer {
 
         chain.doFilter(request, response);
     }
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-    }
-
-    @Override
-    public void destroy() {
-    }
-
-
 }
 
